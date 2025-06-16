@@ -20,12 +20,22 @@ This project serves as a personal learning tool and architectural template for f
 
 ```
 /huli-huli-jars/
-├── frontend/         # Vite + React (presentation layer)
-├── backend/          # Express + PostgreSQL (API and data layer)
-│   ├── index.js      # Main server entry
-│   └── .env          # Local DB connection (ignored)
-├── .gitignore        # Unified ignore rules for frontend and backend
-├── README.md         # This file
+├── frontend/              # Vite + React (presentation layer)
+├── backend/               # Express + PostgreSQL (API and data layer)
+│   ├── index.js           # Entry point (server boot + DB check)
+│   ├── db/
+│   │   └── pool.js        # DB connection logic (with graceful shutdown + config)
+│   ├── routes/
+│   │   └── jars.js        # Express router for /api/jars
+│   ├── controllers/
+│   │   └── jarsController.js # Business logic for jars API
+│   ├── middleware/
+│   │   ├── errorHandler.js   # General error handler middleware
+│   │   └── notFound.js       # 404 fallback middleware
+│   └── .env               # Environment variables (ignored)
+├── .gitignore             # Unified ignore rules for frontend and backend
+├── README.md              # This file
+└── package.json           # Root script to launch both services
 ```
 
 ---
@@ -166,6 +176,20 @@ npm start
 
 * This project is for educational and prototyping purposes only.
 * The backend database must be running locally and seeded with appropriate data.
+* Backend follows a modular Express structure with clear separation of concerns.
+* PostgreSQL connection pooling is used to optimize performance.
+* Pool configuration includes:
+
+  * Max 10 concurrent connections
+  * 10s idle timeout
+  * 2s connection wait timeout
+  * Graceful shutdown on SIGINT
+* `index.js` now delegates:
+
+  * Routing to `routes/jars.js`
+  * Business logic to `controllers/jarsController.js`
+  * 404 responses to `middleware/notFound.js`
+  * Error handling to `middleware/errorHandler.js`
 * Environment variables and database credentials are stored in `.env` and excluded from version control.
 
 ---
@@ -180,3 +204,6 @@ npm start
 ---
 
 Crafted by hand for future inspiration and technical growth. 🍟
+
+
+
