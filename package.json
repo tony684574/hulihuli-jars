@@ -1,0 +1,12 @@
+{
+  "name": "huli-huli-jars",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for the Huli Huli Jars full-stack inventory prototype",
+  "scripts": {
+    "start": "concurrently \"npm run server --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
