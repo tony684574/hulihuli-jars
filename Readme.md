@@ -1,209 +1,150 @@
 # Huli Huli Jars
 
-**Huli Huli Jars** is a prototype full-stack application built to track jam inventory, distribution, and sales. It is structured as a monorepo containing both the frontend (React) and backend (Express + PostgreSQL).
-
-This project serves as a personal learning tool and architectural template for future inventory management systems—built with clarity, modularity, and real-world utility in mind.
+A full-stack inventory management system built with **Node.js**, **Express**, **PostgreSQL**, and **React** (with **Tailwind CSS**). Designed to help small businesses track inventory, sales, and distribution by location.
 
 ---
 
-## 🛍️ Project Goals
+## 🌐 API Endpoints
 
-* Learn and apply full-stack development patterns
-* Create a clean monorepo structure with frontend and backend separation
-* Connect a React frontend to a PostgreSQL database via REST API
-* Experiment with building endpoints and querying relational data
-* Serve as a baseline for future production-ready tools
+| Method | Endpoint                               | Description                                     |
+| ------ | -------------------------------------- | ----------------------------------------------- |
+| GET    | `/healthcheck`                         | Health status check                             |
+| POST   | `/api/products`                        | Add a new product                               |
+| POST   | `/api/inventory`                       | Add inventory (general stock, no location)      |
+| GET    | `/api/inventory/summary`               | Inventory summary (all products, all locations) |
+| POST   | `/api/inventory/{location_id}`         | Disperse stock to a specific location           |
+| GET    | `/api/inventory/summary/{location_id}` | Summary of inventory at specific location       |
+| GET    | `/api/inventory/active/{location_id}`  | Active (non-zero) stock for a location          |
+| POST   | `/api/sales`                           | Record a sales transaction                      |
 
 ---
 
-## 📁 Project Structure
+## 🗂️ Project Directory Structure
 
 ```
-/huli-huli-jars/
-├── frontend/              # Vite + React (presentation layer)
-├── backend/               # Express + PostgreSQL (API and data layer)
-│   ├── index.js           # Entry point (server boot + DB check)
-│   ├── db/
-│   │   └── pool.js        # DB connection logic (with graceful shutdown + config)
-│   ├── routes/
-│   │   └── jars.js        # Express router for /api/jars
-│   ├── controllers/
-│   │   └── jarsController.js # Business logic for jars API
-│   ├── middleware/
-│   │   ├── errorHandler.js   # General error handler middleware
-│   │   └── notFound.js       # 404 fallback middleware
-│   └── .env               # Environment variables (ignored)
-├── .gitignore             # Unified ignore rules for frontend and backend
-├── README.md              # This file
-└── package.json           # Root script to launch both services
+HULIHULI JARS
+├── backend
+│   ├── controllers
+│   │   ├── inventory
+│   │   │   ├── disperseInventory.js
+│   │   │   ├── getActiveInventoryByLocation.js
+│   │   │   ├── getInventorySummary.js
+│   │   │   ├── getInventorySummaryByLocation.js
+│   │   ├── inventoryController.js
+│   │   ├── locationsController.js
+│   │   ├── productController.js
+│   │   ├── salesController.js
+│   ├── db
+│   │   ├── pool.js                   # PostgreSQL connection setup
+│   │   └── seed.psql                 # Initial DB schema and data seed
+│   ├── helpers
+│   │   └── inventory.js             # Helper: signed quantity logic
+│   ├── middleware
+│   │   ├── errorHandler.js          # Centralized error handler
+│   │   └── notFound.js              # 404 fallback handler
+│   ├── routes
+│   │   ├── inventory.js
+│   │   ├── locations.js
+│   │   ├── products.js
+│   │   └── sales.js
+│   ├── .env                          # Environment variables
+│   ├── index.js                      # Express server setup
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── api
+│   │   │   ├── inventory.js         # Fetch functions for inventory
+│   │   │   └── sales.js             # Fetch functions for sales
+│   │   ├── assets
+│   │   ├── components
+│   │   │   └── InventoryTable.jsx   # Table component for display
+│   │   ├── pages
+│   │   │   └── HomePage.jsx         # Home dashboard
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css                # Tailwind directives live here
+│   │   └── main.jsx
+│   ├── tailwind.config.js          # Tailwind config
+│   ├── postcss.config.js           # PostCSS config for Tailwind
+├── package.json                     # Shared project scripts and deps
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Getting Started Locally
 
-| Layer       | Technology         |
-| ----------- | ------------------ |
-| Frontend    | React (via Vite)   |
-| Backend     | Node.js + Express  |
-| Database    | PostgreSQL (local) |
-| Dev Tooling | Git, dotenv, CORS  |
+### Prerequisites
+
+* Node.js
+* PostgreSQL (running locally or via Docker)
 
 ---
 
-## 🚀 Getting Started
-
-### 1. Clone and Setup
+### 1. Clone the Repo
 
 ```bash
-git clone <your-repo-url>
-cd huli-huli-jars
+git clone https://github.com/yourusername/hulihuli-jars.git
+cd hulihuli-jars
 ```
 
-> Note: This project is not yet pushed to a remote repo.
-
----
-
-### 2. Backend Setup
+### 2. Set Up Backend
 
 ```bash
 cd backend
 npm install
-```
 
-Create a `.env` file in `/backend/`:
-
-```
+# Create `.env` file with:
 DATABASE_URL=postgres://postgres:yourpassword@localhost:5432/hulihuli_jars
-```
+CORS_ORIGIN=http://localhost:5173
 
-Start the server:
+# Optional: Seed the database (PostgreSQL must be running):
+psql -U postgres -d hulihuli_jars -f db/seed.psql
 
-```bash
-node index.js
-```
-
-If successful, your backend will be running at:
-
-```
-http://localhost:5000
-```
-
-Test it with:
-
-```bash
-curl http://localhost:5000/api/jars
-```
-
----
-
-### 3. Frontend Setup
-
-```bash
-cd ../frontend
-npm install
-npm run dev
-```
-
-This launches your Vite-powered React app at:
-
-```
-http://localhost:5173
-```
-
----
-
-## 🔁 Starting Both Services Together (Manual)
-
-Open two terminals:
-
-**Terminal 1: Backend**
-
-```bash
-cd backend
-node index.js
-```
-
-**Terminal 2: Frontend**
-
-```bash
-cd frontend
-npm run dev
-```
-
----
-
-## 🔧 Optional: Script to Start Both
-
-If you want a single command to start both services, install `concurrently` in the root:
-
-```bash
-npm install -D concurrently
-```
-
-Create a root-level `package.json` (if you don't already have one) and add:
-
-```json
-{
-  "name": "huli-huli-jars",
-  "private": true,
-  "scripts": {
-    "start": "concurrently \"npm run server --prefix backend\" \"npm run dev --prefix frontend\""
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.0"
-  }
-}
-```
-
-Then simply run:
-
-```bash
+# Start the backend
 npm start
 ```
 
 ---
 
-## 🧪 API Endpoints (So Far)
+### 3. Set Up Frontend
 
-| Method | Route       | Description           |
-| ------ | ----------- | --------------------- |
-| GET    | `/api/jars` | Fetch all jar records |
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
----
+#### ⚠️ Tailwind CSS Setup
 
-## 📌 Notes
+Tailwind is already configured with:
 
-* This project is for educational and prototyping purposes only.
-* The backend database must be running locally and seeded with appropriate data.
-* Backend follows a modular Express structure with clear separation of concerns.
-* PostgreSQL connection pooling is used to optimize performance.
-* Pool configuration includes:
+* `tailwind.config.js`
+* `postcss.config.js`
+* Tailwind directives in `src/index.css`
 
-  * Max 10 concurrent connections
-  * 10s idle timeout
-  * 2s connection wait timeout
-  * Graceful shutdown on SIGINT
-* `index.js` now delegates:
-
-  * Routing to `routes/jars.js`
-  * Business logic to `controllers/jarsController.js`
-  * 404 responses to `middleware/notFound.js`
-  * Error handling to `middleware/errorHandler.js`
-* Environment variables and database credentials are stored in `.env` and excluded from version control.
+No need to run `npx tailwindcss init` unless starting from scratch.
 
 ---
 
-## 🗓️ Next Steps (Future Development Ideas)
+## 🧪 Progress Notes (Internal)
 
-* Create new routes for `locations`, `transactions`, and summary queries
-* Build the React UI to display and filter inventory data
-* Add form submission to track jar sales
-* Deploy to a local Docker environment or cloud provider for hosting
+* Backend CRUD operations completed for products, inventory movements, and sales.
+* Dispersal route validates available stock and logs signed quantities.
+* Inventory can now be tracked across locations.
+* Frontend routes and display components scaffolded.
+* Tailwind verified functional (via test styles and `text-teal-600`).
+* Ready to implement Admin dashboard components.
+* Seed file exists but collaboration will wait until DB server setup is ready.
 
 ---
 
-Crafted by hand for future inspiration and technical growth. 🍟
+## 👥 Collaboration (Coming Soon)
 
+Once frontend MVP is ready and DB hosting is configured:
 
+* Collaborators can pull repo, install dependencies, and start contributing.
+* Frontend will fetch from live backend with shared DB.
 
+---
+
+Happy jamming 🥄

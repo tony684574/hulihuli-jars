@@ -1,22 +1,42 @@
+// External Modules
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const morgan = require('morgan');
+
+// Internal modules
 const pool = require('./db/pool');
-const jarsRoutes = require('./routes/jars');
+const productsRoutes = require('./routes/products');
+const inventoryRoutes = require('./routes/inventory');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const locationRoutes = require('./routes/locations'); 
+const salesRoutes = require('./routes/sales');
 
 const app = express();
 
 // Global Middleware
+app.use(morgan('dev'));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST'],
 }));
 app.use(express.json());
 
+// healthcheck
+app.get('/healthcheck', (req, res) => {
+    res.json({
+        message: 'Welcome to Huli Huli Jars Inventory API',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Routes
-app.use('/api/jars', jarsRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/sales', salesRoutes);
 
 // Fallback + Error Middleware
 app.use(notFound);
