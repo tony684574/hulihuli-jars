@@ -30,7 +30,16 @@ module.exports = async (req, res) => {
         });
      }   
 
-        res.status(200).json(result.rows);
+    const inventoryWithAlerts = result.rows.map(row => {
+        const current_stock = parseInt(row.current_stock, 10);
+        return {
+            ...row,
+            current_stock,
+            low_stock: current_stock < 20
+        };
+    });
+
+        res.status(200).json(inventoryWithAlerts);
     } catch (error) {
         console.error('Error fetching inventory by location:', error.message);
         res.status(500).json({ error: 'Failed to fetch inventory for this location' });
